@@ -2,20 +2,12 @@
 #include "logging.hpp"
 #include <string.h>
 
-#define MAP_SIZE 100
-typedef struct TableElement TableElement;
-typedef struct TableElement {
-    Map map;
-    int is_populated;
-    const Map *parent;
-    TableElement* next;
-} TableElement;
-
 typedef int TableKey;
 
 TableElement table[ MAP_SIZE ];
+TableElement *tips;
 
-unsigned int map_hash_table_hash( const Map &map ) {
+unsigned int hash_function( const Map &map ) {
     unsigned long hash = 5381;
     int c;
 
@@ -30,11 +22,11 @@ bool are_equal( const Map &first, const Map &second ) {
     return memcmp( first.raw_data, second.raw_data, sizeof( Grid ) ) == 0;
 }
 
-bool map_hash_table_add_map_if_unique( const Map &map ) {
-    unsigned int hash = map_hash_table_hash( map );
+bool map_hash_table_add_map_if_unique( Table &table, const Map &map, const Map *parent ) {
+    unsigned int hash = hash_function( map );
     // pr( "Hash:%u", hash );
-    TableElement *element = &table[ hash ];
-    while ( element->is_populated ) {
+    TableElement *element = &table.history[ hash ];
+    while ( element != NULL && element->is_populated ) {
         if ( are_equal( element->map, map ) ) {
             return false;
         }
@@ -43,5 +35,6 @@ bool map_hash_table_add_map_if_unique( const Map &map ) {
     element->map = map;
     element->is_populated = true;
     element->next = new TableElement;
+    element->parent = parent;
     return true;
 }

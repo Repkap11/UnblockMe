@@ -31,7 +31,8 @@ int main( ) {
     extend_tip( table );
     if ( is_solution( tip->map ) ) {
         pr( "Found Solution" );
-        map_print_which_block( tip->map );
+        // map_print_which_block( tip->map );
+        map_hash_table_print_solution( table, tip->map );
     } else {
         pr( "Ran out of tips without finding a solution" );
     }
@@ -39,7 +40,7 @@ int main( ) {
 }
 
 bool is_solution( const Map &map ) {
-    return false;
+    return true;
 }
 
 void extend_tip( Table &table ) {

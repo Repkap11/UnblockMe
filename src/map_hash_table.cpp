@@ -35,6 +35,34 @@ bool map_hash_table_add_map_if_unique( Table &table, const Map &map, const Map *
     element->map = map;
     element->is_populated = true;
     element->next = new TableElement;
-    element->parent = parent;
+
+    if ( parent != NULL ) {
+        unsigned int hash = hash_function( *parent );
+        TableElement *element = &table.history[ hash ];
+        while ( element != NULL && element->is_populated ) {
+            if ( are_equal( element->map, map ) ) {
+                break;
+            }
+            element = element->next;
+        }
+        element->parent = element;
+    } else {
+        element->parent = NULL;
+    }
     return true;
+}
+
+void map_hash_table_print_solution( Table &table, const Map &input_map ) {
+    Map map_temp = input_map;
+    Map &map = map_temp;
+    unsigned int hash = hash_function( map );
+    TableElement *element = &table.history[ hash ];
+    while ( element != NULL && element->is_populated ) {
+        if ( are_equal( element->map, map ) ) {
+            map_print_which_block( element->map );
+            element = element->parent;
+        } else {
+            element = element->next;
+        }
+    }
 }

@@ -15,5 +15,8 @@ int main( ) {
 
     map_print_slide( starting_map );
     map_print_which_block( starting_map );
-    map_hash_table_add_map_if_unique( starting_map );
+    bool added = map_hash_table_add_map_if_unique( starting_map );
+    pr("Added:%d", added);
+    added = map_hash_table_add_map_if_unique( starting_map );
+    pr("Added:%d", added);
 }

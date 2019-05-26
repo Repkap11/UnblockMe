@@ -3,6 +3,7 @@
 typedef enum {
     SLIDE_HORIZONTAL = 'h',
     SILDE_VERTICAL = 'v',
+    SILDE_NONE = ' ',
 } Slide;
 
 // typedef enum {
@@ -14,7 +15,7 @@ typedef enum {
 
 typedef struct {
     Slide slide;
-    char which_block;
+    unsigned char which_block;
 } Grid;
 
 char grid_get_slide_char( const Grid &grid );

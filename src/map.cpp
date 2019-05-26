@@ -1,6 +1,6 @@
 #include "map.hpp"
 #include "grid.hpp"
-#include "solve.hpp"
+#include "logging.hpp"
 
 void map_print_slide( const Map &map ) {
     pr( "" );
@@ -72,6 +72,7 @@ void map_populate_from_chars( Map &starting_map, const char *input ) {
                 }
             } else {
                 starting_map.grids[ i ][ j ].which_block = ' ';
+                starting_map.grids[ i ][ j ].slide = SILDE_NONE;
             }
         }
     }

@@ -2,37 +2,79 @@
 #include "map.hpp"
 #include "map_hash_table.hpp"
 
-void extend_tip( Table &table );
+TableElement *extend_tip( Table &table );
 void add_successors( Table &table, const Map &map );
 bool is_solution( const Map &map );
 
 TableElement *tip;
+Table globalTable; // Rely in initilzation to zero.
+int num_tips = 0;
 
 int main( ) {
-    pr_info( "Hello World" );
-    const char *input = "aaa...\n"
-                        "bbb...\n"
-                        "ccc...\n"
-                        "def...\n"
-                        "def...\n"
-                        "def...";
+    // const char *input = "..aa..\n"
+    //                     "bbb...\n"
+    //                     "ccczz.\n"
+    //                     "def...\n"
+    //                     "def.yy\n"
+    //                     "def...";
+    // const char *input = ".a....\n"
+    //                     ".a..c.\n"
+    //                     "bbf.c.\n"
+    //                     "..f...\n"
+    //                     "e..ddd\n"
+    //                     "e.....";
+    // const char *input = "......\n"
+    //                     "..f...\n"
+    //                     "bbf...\n"
+    //                     "..f...\n"
+    //                     "..aaa.\n"
+    //                     "......";
+    // const char *input = "a.hiii\n"
+    //                     "a.hf..\n"
+    //                     "aggf.j\n"
+    //                     "bbdd.j\n"
+    //                     "ccee.j\n"
+    //                     "......";
+
+    // const char *input = ".ghijj\n"
+    //                     ".ghikk\n"
+    //                     "ffh...\n"
+    //                     "deee.a\n"
+    //                     "d....a\n"
+    //                     "bbcc.a";
+
+    // const char *input = "......\n"
+    //                     "......\n"
+    //                     "......\n"
+    //                     "......\n"
+    //                     "......\n"
+    //                     "......";
+
+    const char *input = "a...cd\n"
+                        "abbbcd\n"
+                        "kkjihd\n"
+                        "lljih.\n"
+                        "...gee\n"
+                        "...gff";
     Map starting_map;
     map_populate_from_chars( starting_map, input );
 
     // map_print_slide( starting_map );
     map_print_which_block( starting_map );
-    Table table;
-    map_hash_table_add_map_if_unique( table, starting_map, NULL );
+    // map_print_size( starting_map );
+
+    map_hash_table_add_map_if_unique( globalTable, starting_map, NULL );
     tip = new TableElement;
     tip->map = starting_map;
     tip->parent = NULL;
-    tip->is_populated = true;
     tip->next = new TableElement;
-    extend_tip( table );
-    if ( is_solution( tip->map ) ) {
+    TableElement *solution = extend_tip( globalTable );
+    pr( "Used num_tips:%d", num_tips );
+    if ( solution != NULL ) {
         pr( "Found Solution" );
-        // map_print_which_block( tip->map );
-        map_hash_table_print_solution( table, tip->map );
+        map_print_which_block( solution->map );
+        pr( "History" );
+        map_hash_table_print_solution( globalTable, solution->map );
     } else {
         pr( "Ran out of tips without finding a solution" );
     }
@@ -40,32 +82,159 @@ int main( ) {
 }
 
 bool is_solution( const Map &map ) {
-    return true;
+    return map.grids[ 2 ][ 5 ].slide == SLIDE_HORIZONTAL;
 }
 
-void extend_tip( Table &table ) {
+TableElement *extend_tip( Table &table ) {
     TableElement *element = tip;
-    while ( element->is_populated ) { // While the tip isn't the last tip.
+    while ( element != NULL ) { // While the tip isn't the last tip.
         if ( is_solution( element->map ) ) {
-            break;
+            return element;
         }
         add_successors( table, element->map );
         TableElement *old_element = element;
         element = element->next;
         delete old_element;
     }
+    return NULL;
+}
+
+void add_successor_map( Table &table, const Map &map, const Map &parent ) {
+
+    bool was_added = map_hash_table_add_map_if_unique( table, map, &parent );
+    if ( was_added ) {
+        map_print_which_block( map );
+        pr( "Wait for Press" );
+        // getchar( );
+        TableElement *element = new TableElement;
+        element->next = NULL;
+        element->map = map;
+        num_tips++;
+        // if ( num_tips == 68 ) {
+        // pr( "Num_Tips:%d", num_tips );
+        //}
+        tip->next = element;
+        tip = element;
+    }
 }
 
 void add_successors( Table &table, const Map &map ) {
-    TableElement *element = new TableElement;
-    element->map = map;
+    for ( int i = 0; i < 6; i++ ) {
+        for ( int j = 0; j < 6; j++ ) {
+            const Grid *grid = &map.grids[ i ][ j ];
+            const char c = grid->which_block;
+            if ( c == ' ' ) {
+                continue;
+            }
+            int size = grid->size;
+            if ( grid->slide == SILDE_VERTICAL ) {
+                if ( i != 0 ) {
+                    if ( map.grids[ i - 1 ][ j ].which_block == c ) {
+                        // This is an extention of the block above, so don't do anything vertically
+                        continue;
+                    }
+                    int max_move = i;
+                    bool done = false;
+                    for ( int a = 1; ( !done ) && ( a < max_move + 1 ); a++ ) {
+                        // pr( "Trying Move Up:%d", a );
+                        Map new_map = map;
+                        for ( int b = 1; ( !done ) && ( b < a + 1 ); b++ ) {
+                            if ( new_map.grids[ i - b ][ j ].which_block != ' ' ) {
+                                done = true;
+                                break;
+                            }
+                            // pr( "  Adjusting i=%d and i=%d", i - b, i + size - b );
+                            new_map.grids[ i - b ][ j ].which_block = c;
+                            new_map.grids[ i - b ][ j ].size = size;
+                            new_map.grids[ i - b ][ j ].slide = SILDE_VERTICAL;
 
-    bool was_added = map_hash_table_add_map_if_unique( table, element->map, &map );
-    if ( was_added ) {
-        tip->next = element;
-        tip->is_populated = true;
-        tip = element;
-    } else {
-        delete element;
+                            new_map.grids[ i + size - b ][ j ].which_block = ' ';
+                            new_map.grids[ i + size - b ][ j ].size = 0;
+                            new_map.grids[ i + size - b ][ j ].slide = SILDE_NONE;
+                        }
+                        if ( !done ) {
+                            add_successor_map( table, new_map, map );
+                        }
+                    }
+                }
+                int max_move = 6 - ( i + size );
+                bool done = false;
+                for ( int a = 1; ( !done ) && ( a < max_move + 1 ); a++ ) {
+                    pr( "Trying Move Down:%d", a );
+                    Map new_map = map;
+                    for ( int b = 0; ( !done ) && ( b < a ); b++ ) {
+                        if ( new_map.grids[ i + size + b ][ j ].which_block != ' ' ) {
+                            done = true;
+                            break;
+                        }
+                        pr( "  Adjusting j=%d and j=%d", j + b, j + size + b );
+                        new_map.grids[ i + b ][ j ].which_block = ' ';
+                        new_map.grids[ i + b ][ j ].size = 0;
+                        new_map.grids[ i + b ][ j ].slide = SILDE_NONE;
+
+                        new_map.grids[ i + size + b ][ j ].which_block = c;
+                        new_map.grids[ i + size + b ][ j ].size = size;
+                        new_map.grids[ i + size + b ][ j ].slide = SILDE_VERTICAL;
+                    }
+                    if ( !done ) {
+                        add_successor_map( table, new_map, map );
+                    }
+                }
+            }
+            if ( grid->slide == SLIDE_HORIZONTAL ) {
+                if ( j != 0 ) {
+                    if ( map.grids[ i ][ j - 1 ].which_block == c ) {
+                        // This is an extention of the block to the left, so don't do anything horiziontally
+                        continue;
+                    }
+                    int max_move = j;
+                    bool done = false;
+                    for ( int a = 1; ( !done ) && ( a < max_move + 1 ); a++ ) {
+                        // pr( "Trying Move Left:%d", a );
+                        Map new_map = map;
+                        for ( int b = 1; ( !done ) && ( b < a + 1 ); b++ ) {
+                            if ( new_map.grids[ i ][ j - b ].which_block != ' ' ) {
+                                done = true;
+                                break;
+                            }
+                            // pr( "  Adjusting j=%d and j=%d", j - b, j + size - b );
+                            new_map.grids[ i ][ j - b ].which_block = c;
+                            new_map.grids[ i ][ j - b ].size = size;
+                            new_map.grids[ i ][ j - b ].slide = SLIDE_HORIZONTAL;
+
+                            new_map.grids[ i ][ j + size - b ].which_block = ' ';
+                            new_map.grids[ i ][ j + size - b ].size = 0;
+                            new_map.grids[ i ][ j + size - b ].slide = SILDE_NONE;
+                        }
+                        if ( !done ) {
+                            add_successor_map( table, new_map, map );
+                        }
+                    }
+                }
+                int max_move = 6 - ( j + size );
+                bool done = false;
+                for ( int a = 1; ( !done ) && ( a < max_move + 1 ); a++ ) {
+                    // pr( "Trying Move Right:%d", a );
+                    Map new_map = map;
+                    for ( int b = 0; ( !done ) && ( b < a ); b++ ) {
+                        if ( new_map.grids[ i ][ j + size + b ].which_block != ' ' ) {
+                            done = true;
+                            break;
+                        }
+                        // pr( "  Adjusting j=%d and j=%d", j + b, j + size + b );
+                        new_map.grids[ i ][ j + b ].which_block = ' ';
+                        new_map.grids[ i ][ j + b ].size = 0;
+                        new_map.grids[ i ][ j + b ].slide = SILDE_NONE;
+
+                        new_map.grids[ i ][ j + size + b ].which_block = c;
+                        new_map.grids[ i ][ j + size + b ].size = size;
+                        new_map.grids[ i ][ j + size + b ].slide = SLIDE_HORIZONTAL;
+                    }
+                    if ( !done ) {
+                        add_successor_map( table, new_map, map );
+                    }
+                }
+            }
+        }
     }
 }

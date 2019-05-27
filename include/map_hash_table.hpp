@@ -1,13 +1,15 @@
 #pragma once
 #include "map.hpp"
 
-#define MAP_SIZE 100
+#define MAP_SIZE 10000
 typedef struct TableElement TableElement;
 typedef struct TableElement {
     Map map;
-    int is_populated;
     TableElement *parent;
     TableElement *next;
+    TableElement( ) : parent( 0 ), next( 0 ) {
+    }
+
 } TableElement;
 
 typedef struct {

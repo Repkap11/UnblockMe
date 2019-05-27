@@ -3,8 +3,7 @@
 #include "logging.hpp"
 
 void map_print_slide( const Map &map ) {
-    pr( "" );
-    pr( "--Slide-" );
+    // pr( "--Slide-" );
     pr( "┌──────┐" );
     for ( int i = 0; i < 6; i++ ) {
         const Grid *line = map.grids[ i ];
@@ -13,11 +12,11 @@ void map_print_slide( const Map &map ) {
             end_char );
     }
     pr( "└──────┘" );
+    pr( "" );
 }
 
 void map_print_which_block( const Map &map ) {
-    pr( "" );
-    pr( "--Block-" );
+    // pr( "--Block-" );
     pr( "┌──────┐" );
     for ( int i = 0; i < 6; i++ ) {
         const Grid *line = map.grids[ i ];
@@ -26,7 +25,22 @@ void map_print_which_block( const Map &map ) {
             end_char );
     }
     pr( "└──────┘" );
+    pr( "" );
 }
+
+void map_print_size( const Map &map ) {
+    // pr( "--Size--" );
+    pr( "┌──────┐" );
+    for ( int i = 0; i < 6; i++ ) {
+        const Grid *line = map.grids[ i ];
+        const char *end_char = i == 2 ? " " : "│";
+        pr( "│%c%c%c%c%c%c%s", grid_get_which_size( line[ 0 ] ), grid_get_which_size( line[ 1 ] ), grid_get_which_size( line[ 2 ] ), grid_get_which_size( line[ 3 ] ), grid_get_which_size( line[ 4 ] ), grid_get_which_size( line[ 5 ] ),
+            end_char );
+    }
+    pr( "└──────┘" );
+    pr( "" );
+}
+
 void map_populate_from_chars( Map &starting_map, const char *input ) {
     char input_line[ 6 ][ 6 ];
     sscanf( input, "%6s\n%6s\n%6s\n%6s\n%6s\n%6s", input_line[ 0 ], input_line[ 1 ], input_line[ 2 ], input_line[ 3 ], input_line[ 4 ], input_line[ 5 ] );
@@ -34,35 +48,47 @@ void map_populate_from_chars( Map &starting_map, const char *input ) {
     for ( int i = 0; i < 6; i++ ) {
         for ( int j = 0; j < 6; j++ ) {
             char c = input_line[ i ][ j ];
+            Grid *grid = &starting_map.grids[ i ][ j ];
             if ( c != '.' ) {
-                starting_map.grids[ i ][ j ].which_block = c;
-
+                grid->which_block = c;
                 bool handled = false;
 
                 if ( i != 0 ) {
                     if ( input_line[ i - 1 ][ j ] == c ) {
+                        Grid *near_grid = &starting_map.grids[ i - 1 ][ j ];
                         // This is an extention of the grid above
-                        starting_map.grids[ i ][ j ].slide = starting_map.grids[ i - 1 ][ j ].slide;
+                        grid->slide = near_grid->slide;
+                        char new_size = near_grid->size + 1;
+                        for ( int a = 0; a < new_size; a++ ) {
+                            starting_map.grids[ i - a ][ j ].size = new_size;
+                        }
                         handled = true;
                     }
                 }
                 if ( j != 0 ) {
                     if ( input_line[ i ][ j - 1 ] == c ) {
+                        Grid *near_grid = &starting_map.grids[ i ][ j - 1 ];
                         // This is an extention of the grid to the left
-                        starting_map.grids[ i ][ j ].slide = starting_map.grids[ i ][ j - 1 ].slide;
+                        grid->slide = near_grid->slide;
+                        char new_size = near_grid->size + 1;
+                        for ( int a = 0; a < new_size; a++ ) {
+                            starting_map.grids[ i ][ j - a ].size = new_size;
+                        }
                         handled = true;
                     }
                 }
                 if ( !handled ) {
                     if ( i != 5 ) {
                         if ( input_line[ i + 1 ][ j ] == c ) {
-                            starting_map.grids[ i ][ j ].slide = SILDE_VERTICAL;
+                            grid->slide = SILDE_VERTICAL;
+                            grid->size = 1;
                             handled = true;
                         }
                     }
                     if ( j != 5 ) {
                         if ( input_line[ i ][ j + 1 ] == c ) {
-                            starting_map.grids[ i ][ j ].slide = SLIDE_HORIZONTAL;
+                            grid->slide = SLIDE_HORIZONTAL;
+                            grid->size = 1;
                             handled = true;
                         }
                     }
@@ -71,8 +97,9 @@ void map_populate_from_chars( Map &starting_map, const char *input ) {
                     pr_info( "It should be handled %d:%d", i, j );
                 }
             } else {
-                starting_map.grids[ i ][ j ].which_block = ' ';
-                starting_map.grids[ i ][ j ].slide = SILDE_NONE;
+                grid->which_block = ' ';
+                grid->slide = SILDE_NONE;
+                grid->size = 0;
             }
         }
     }

@@ -19,35 +19,52 @@ unsigned int hash_function( const Map &map ) {
 }
 
 bool are_equal( const Map &first, const Map &second ) {
-    return memcmp( first.raw_data, second.raw_data, sizeof( Grid ) ) == 0;
+    bool result = memcmp( first.raw_data, second.raw_data, sizeof( Map ) ) == 0;
+    return result;
 }
 
 bool map_hash_table_add_map_if_unique( Table &table, const Map &map, const Map *parent ) {
+
+    // if ( parent != NULL && are_equal( map, *parent ) ) {
+    //     pr_info( "A map and its parent should be the same" );
+    // }
+
     unsigned int hash = hash_function( map );
     // pr( "Hash:%u", hash );
     TableElement *element = &table.history[ hash ];
-    while ( element != NULL && element->is_populated ) {
+    if ( element == NULL ) {
+        pr_info( "Why is element null" );
+    }
+    while ( element->next != NULL ) {
         if ( are_equal( element->map, map ) ) {
             return false;
         }
         element = element->next;
     }
     element->map = map;
-    element->is_populated = true;
     element->next = new TableElement;
 
     if ( parent != NULL ) {
-        unsigned int hash = hash_function( *parent );
-        TableElement *element = &table.history[ hash ];
-        while ( element != NULL && element->is_populated ) {
-            if ( are_equal( element->map, map ) ) {
-                break;
+        Map parentMap = *parent;
+        unsigned int hash = hash_function( parentMap );
+        TableElement *parentElement = &table.history[ hash ];
+        bool found_parent = false;
+        while ( parentElement != NULL ) {
+            if ( are_equal( parentElement->map, parentMap ) ) {
+                element->parent = parentElement;
+                if ( element == element->parent ) {
+                    pr_info( "An element's parent shouldn't be itself" );
+                }
+                return true;
             }
-            element = element->next;
+            parentElement = parentElement->next;
         }
-        element->parent = element;
+        pr_info( "Should have found a parent" );
     } else {
         element->parent = NULL;
+    }
+    if ( element == element->parent ) {
+        pr_info( "An element's parent shouldn't be itself" );
     }
     return true;
 }
@@ -57,12 +74,18 @@ void map_hash_table_print_solution( Table &table, const Map &input_map ) {
     Map &map = map_temp;
     unsigned int hash = hash_function( map );
     TableElement *element = &table.history[ hash ];
-    while ( element != NULL && element->is_populated ) {
+    while ( element != NULL ) {
         if ( are_equal( element->map, map ) ) {
-            map_print_which_block( element->map );
-            element = element->parent;
+            break;
         } else {
             element = element->next;
         }
     }
+    int length = 1;
+    while ( element != NULL ) {
+        length++;
+        map_print_which_block( element->map );
+        element = element->parent;
+    }
+    pr( "Solution Length:%d", length );
 }

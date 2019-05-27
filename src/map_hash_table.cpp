@@ -23,7 +23,7 @@ bool are_equal( const Map &first, const Map &second ) {
     return result;
 }
 
-bool map_hash_table_add_map_if_unique( Table &table, const Map &map, const Map *parent ) {
+bool map_hash_table_add_map_if_unique( Table &table, const Map &map, const MoveCommand &move, const Map *parent ) {
 
     // if ( parent != NULL && are_equal( map, *parent ) ) {
     //     pr_info( "A map and its parent should be the same" );
@@ -42,6 +42,7 @@ bool map_hash_table_add_map_if_unique( Table &table, const Map &map, const Map *
         element = element->next;
     }
     element->map = map;
+    element->move = move;
     element->next = new TableElement;
 
     if ( parent != NULL ) {
@@ -85,6 +86,9 @@ void map_hash_table_print_solution( Table &table, const Map &input_map ) {
     while ( element != NULL ) {
         length++;
         map_print_which_block( element->map );
+        if ( element->parent != NULL ) {
+            move_command_print( element->move );
+        }
         element = element->parent;
     }
     pr( "Solution Length:%d", length );

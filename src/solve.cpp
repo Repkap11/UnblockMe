@@ -43,19 +43,19 @@ int main( ) {
     //                     "d....a\n"
     //                     "bbcc.a";
 
-    // const char *input = "......\n"
-    //                     "......\n"
-    //                     "......\n"
-    //                     "......\n"
-    //                     "......\n"
-    //                     "......";
+    const char *input = "......\n"
+                        "......\n"
+                        "...kk.\n"
+                        "......\n"
+                        "......\n"
+                        "......";
 
-    const char *input = "a...cd\n"
-                        "abbbcd\n"
-                        "kkjihd\n"
-                        "lljih.\n"
-                        "...gee\n"
-                        "...gff";
+    // const char *input = "a...cd\n"
+    //                     "abbbcd\n"
+    //                     "kkjihd\n"
+    //                     "lljih.\n"
+    //                     "...gee\n"
+    //                     "...gff";
     Map starting_map;
     map_populate_from_chars( starting_map, input );
 
@@ -63,16 +63,16 @@ int main( ) {
     map_print_which_block( starting_map );
     // map_print_size( starting_map );
 
-    map_hash_table_add_map_if_unique( globalTable, starting_map, NULL );
-    tip = new TableElement;
+    map_hash_table_add_map_if_unique( globalTable, starting_map, MoveCommand( ), NULL );
+    tip = new TableElement( );
     tip->map = starting_map;
     tip->parent = NULL;
-    tip->next = new TableElement;
+    tip->next = new TableElement( );
     TableElement *solution = extend_tip( globalTable );
     pr( "Used num_tips:%d", num_tips );
     if ( solution != NULL ) {
         pr( "Found Solution" );
-        map_print_which_block( solution->map );
+        //map_print_which_block( solution->map );
         pr( "History" );
         map_hash_table_print_solution( globalTable, solution->map );
     } else {
@@ -99,14 +99,14 @@ TableElement *extend_tip( Table &table ) {
     return NULL;
 }
 
-void add_successor_map( Table &table, const Map &map, const Map &parent ) {
+void add_successor_map( Table &table, const Map &map, const MoveCommand &move, const Map &parent ) {
 
-    bool was_added = map_hash_table_add_map_if_unique( table, map, &parent );
+    bool was_added = map_hash_table_add_map_if_unique( table, map, move, &parent );
     if ( was_added ) {
-        map_print_which_block( map );
-        pr( "Wait for Press" );
+        // map_print_which_block( map );
+        // pr( "Wait for Press" );
         // getchar( );
-        TableElement *element = new TableElement;
+        TableElement *element = new TableElement( move );
         element->next = NULL;
         element->map = map;
         num_tips++;
@@ -138,6 +138,7 @@ void add_successors( Table &table, const Map &map ) {
                     for ( int a = 1; ( !done ) && ( a < max_move + 1 ); a++ ) {
                         // pr( "Trying Move Up:%d", a );
                         Map new_map = map;
+                        MoveCommand move( i, j, c, "up", a );
                         for ( int b = 1; ( !done ) && ( b < a + 1 ); b++ ) {
                             if ( new_map.grids[ i - b ][ j ].which_block != ' ' ) {
                                 done = true;
@@ -153,21 +154,22 @@ void add_successors( Table &table, const Map &map ) {
                             new_map.grids[ i + size - b ][ j ].slide = SILDE_NONE;
                         }
                         if ( !done ) {
-                            add_successor_map( table, new_map, map );
+                            add_successor_map( table, new_map, move, map );
                         }
                     }
                 }
                 int max_move = 6 - ( i + size );
                 bool done = false;
                 for ( int a = 1; ( !done ) && ( a < max_move + 1 ); a++ ) {
-                    pr( "Trying Move Down:%d", a );
+                    // pr( "Trying Move Down:%d", a );
                     Map new_map = map;
+                    MoveCommand move( i, j, c, "down", a );
                     for ( int b = 0; ( !done ) && ( b < a ); b++ ) {
                         if ( new_map.grids[ i + size + b ][ j ].which_block != ' ' ) {
                             done = true;
                             break;
                         }
-                        pr( "  Adjusting j=%d and j=%d", j + b, j + size + b );
+                        // pr( "  Adjusting j=%d and j=%d", j + b, j + size + b );
                         new_map.grids[ i + b ][ j ].which_block = ' ';
                         new_map.grids[ i + b ][ j ].size = 0;
                         new_map.grids[ i + b ][ j ].slide = SILDE_NONE;
@@ -177,7 +179,7 @@ void add_successors( Table &table, const Map &map ) {
                         new_map.grids[ i + size + b ][ j ].slide = SILDE_VERTICAL;
                     }
                     if ( !done ) {
-                        add_successor_map( table, new_map, map );
+                        add_successor_map( table, new_map, move, map );
                     }
                 }
             }
@@ -192,6 +194,7 @@ void add_successors( Table &table, const Map &map ) {
                     for ( int a = 1; ( !done ) && ( a < max_move + 1 ); a++ ) {
                         // pr( "Trying Move Left:%d", a );
                         Map new_map = map;
+                        MoveCommand move( i, j, c, "left", a );
                         for ( int b = 1; ( !done ) && ( b < a + 1 ); b++ ) {
                             if ( new_map.grids[ i ][ j - b ].which_block != ' ' ) {
                                 done = true;
@@ -207,7 +210,7 @@ void add_successors( Table &table, const Map &map ) {
                             new_map.grids[ i ][ j + size - b ].slide = SILDE_NONE;
                         }
                         if ( !done ) {
-                            add_successor_map( table, new_map, map );
+                            add_successor_map( table, new_map, move, map );
                         }
                     }
                 }
@@ -216,6 +219,7 @@ void add_successors( Table &table, const Map &map ) {
                 for ( int a = 1; ( !done ) && ( a < max_move + 1 ); a++ ) {
                     // pr( "Trying Move Right:%d", a );
                     Map new_map = map;
+                    MoveCommand move( i, j, c, "right", a );
                     for ( int b = 0; ( !done ) && ( b < a ); b++ ) {
                         if ( new_map.grids[ i ][ j + size + b ].which_block != ' ' ) {
                             done = true;
@@ -231,7 +235,7 @@ void add_successors( Table &table, const Map &map ) {
                         new_map.grids[ i ][ j + size + b ].slide = SLIDE_HORIZONTAL;
                     }
                     if ( !done ) {
-                        add_successor_map( table, new_map, map );
+                        add_successor_map( table, new_map, move, map );
                     }
                 }
             }

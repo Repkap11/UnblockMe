@@ -82,14 +82,36 @@ void map_hash_table_print_solution( Table &table, const Map &input_map ) {
             element = element->next;
         }
     }
-    int length = 1;
+
+    // Initialize current, previous and
+    // next pointers
+    TableElement *current = element;
+    TableElement *prev = NULL, *next = NULL;
+
+    while ( current != NULL ) {
+        // Store next
+        next = current->parent;
+
+        // Reverse current node's pointer
+        current->parent = prev;
+
+        // Move pointers one position ahead.
+        prev = current;
+        current = next;
+    }
+    element = prev;
+    for ( int i = 0; i < 80; i++ ) {
+        pr( "" );
+    }
+    int length = 0;
     while ( element != NULL ) {
-        length++;
         map_print_which_block( element->map );
-        if ( element->parent != NULL ) {
-            move_command_print( element->move );
-        }
         element = element->parent;
+        if ( element != NULL ) {
+            getchar( );
+            move_command_print( element->move );
+            length++;
+        }
     }
     pr( "Solution Length:%d", length );
 }

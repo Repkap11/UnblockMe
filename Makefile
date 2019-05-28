@@ -31,8 +31,12 @@ DEPS := $(patsubst src/%.cpp,out/%.d, $(wildcard src/*.cpp))
 CC := ccache $(CC)
 LD := ccache $(LD)
 
+
 run: all
 	./$(TARGET)
+
+solve:
+	python3 solve.py
 
 all: $(TARGET)
 
@@ -51,6 +55,10 @@ $(TARGET): $(OBJECTS) $(MAKEFILES)
 clean:
 	rm -rf out
 
+install:
+	sudo apt install python3-pip
+	pip3 install pypng adbutils numpy matplotlib
+
 .PRECIOUS: $(TARGET) $(OBJECTS)
 
-.PHONY: all run
+.PHONY: all run install clean

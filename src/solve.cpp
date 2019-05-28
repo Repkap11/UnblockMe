@@ -11,51 +11,20 @@ Table globalTable; // Rely in initilzation to zero.
 int num_tips = 0;
 
 int main( ) {
-    // const char *input = "..aa..\n"
-    //                     "bbb...\n"
-    //                     "ccczz.\n"
-    //                     "def...\n"
-    //                     "def.yy\n"
-    //                     "def...";
-    // const char *input = ".a....\n"
-    //                     ".a..c.\n"
-    //                     "bbf.c.\n"
-    //                     "..f...\n"
-    //                     "e..ddd\n"
-    //                     "e.....";
     // const char *input = "......\n"
-    //                     "..f...\n"
-    //                     "bbf...\n"
-    //                     "..f...\n"
-    //                     "..aaa.\n"
-    //                     "......";
-    // const char *input = "a.hiii\n"
-    //                     "a.hf..\n"
-    //                     "aggf.j\n"
-    //                     "bbdd.j\n"
-    //                     "ccee.j\n"
+    //                     "......\n"
+    //                     "...kk.\n"
+    //                     "......\n"
+    //                     "......\n"
     //                     "......";
 
-    // const char *input = ".ghijj\n"
-    //                     ".ghikk\n"
-    //                     "ffh...\n"
-    //                     "deee.a\n"
-    //                     "d....a\n"
-    //                     "bbcc.a";
+    const char *input = "a...cd\n"
+                        "abbbcd\n"
+                        "kkgfed\n"
+                        "llgfe.\n"
+                        "...hii\n"
+                        "...hjj";
 
-    const char *input = "......\n"
-                        "......\n"
-                        "...kk.\n"
-                        "......\n"
-                        "......\n"
-                        "......";
-
-    // const char *input = "a...cd\n"
-    //                     "abbbcd\n"
-    //                     "kkjihd\n"
-    //                     "lljih.\n"
-    //                     "...gee\n"
-    //                     "...gff";
     Map starting_map;
     map_populate_from_chars( starting_map, input );
 
@@ -72,7 +41,7 @@ int main( ) {
     pr( "Used num_tips:%d", num_tips );
     if ( solution != NULL ) {
         pr( "Found Solution" );
-        //map_print_which_block( solution->map );
+        // map_print_which_block( solution->map );
         pr( "History" );
         map_hash_table_print_solution( globalTable, solution->map );
     } else {

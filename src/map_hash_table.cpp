@@ -70,7 +70,7 @@ bool map_hash_table_add_map_if_unique( Table &table, const Map &map, const MoveC
     return true;
 }
 
-void map_hash_table_print_solution( Table &table, const Map &input_map ) {
+void map_hash_table_print_solution( Table &table, const Map &input_map, const char *file_name ) {
     Map map_temp = input_map;
     Map &map = map_temp;
     unsigned int hash = hash_function( map );
@@ -100,18 +100,42 @@ void map_hash_table_print_solution( Table &table, const Map &input_map ) {
         current = next;
     }
     element = prev;
-    for ( int i = 0; i < 80; i++ ) {
-        pr( "" );
+
+    bool interactive = true;
+    FILE *f = NULL;
+    if ( file_name != NULL ) {
+        f = fopen( file_name, "wb" );
+        if ( f ) {
+            interactive = false;
+        } else {
+            pr( "Can't open solution file:%s. Interactive...", file_name );
+        }
     }
+    
+    if ( interactive ) {
+        for ( int i = 0; i < 80; i++ ) {
+            pr( "" );
+        }
+    }
+
     int length = 0;
     while ( element != NULL ) {
-        map_print_which_block( element->map );
+        if ( interactive ) {
+            map_print_which_block( element->map );
+        }
         element = element->parent;
         if ( element != NULL ) {
-            getchar( );
-            move_command_print( element->move );
+            if ( interactive ) {
+                getchar( );
+                move_command_print( element->move );
+            } else {
+                move_command_append( element->move, f );
+            }
             length++;
         }
+    }
+    if ( f != NULL ) {
+        fclose( f );
     }
     pr( "Solution Length:%d", length );
 }

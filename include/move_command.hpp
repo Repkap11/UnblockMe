@@ -1,4 +1,5 @@
 #pragma once
+#include <stdio.h>
 
 typedef struct MoveCommand {
     int i, j;
@@ -12,3 +13,4 @@ typedef struct MoveCommand {
 } MoveCommand;
 
 void move_command_print( const MoveCommand &move );
+void move_command_append( const MoveCommand &move, FILE *f );

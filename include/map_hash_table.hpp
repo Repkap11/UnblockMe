@@ -21,4 +21,4 @@ typedef struct {
 } Table;
 
 bool map_hash_table_add_map_if_unique( Table &table, const Map &map, const MoveCommand &move, const Map *parent );
-void map_hash_table_print_solution( Table &table, const Map &map );
+void map_hash_table_print_solution( Table &table, const Map &map, const char *file_name );

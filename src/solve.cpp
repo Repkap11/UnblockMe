@@ -1,6 +1,8 @@
 #include "logging.hpp"
 #include "map.hpp"
 #include "map_hash_table.hpp"
+#include <cstdlib>
+#include <stdio.h>
 
 TableElement *extend_tip( Table &table );
 void add_successors( Table &table, const Map &map );
@@ -10,20 +12,49 @@ TableElement *tip;
 Table globalTable; // Rely in initilzation to zero.
 int num_tips = 0;
 
-int main( ) {
-    // const char *input = "......\n"
-    //                     "......\n"
-    //                     "...kk.\n"
-    //                     "......\n"
-    //                     "......\n"
-    //                     "......";
+#define BUFF_SIZE 100
+int main( int argc, char **argv ) {
+    char *solution_file = NULL;
+    char *input_file = NULL;
+    if ( argc == 3 ) {
+        input_file = argv[ 1 ];
+        solution_file = argv[ 2 ];
+    } else if ( argc == 2 ) {
+        input_file = argv[ 1 ];
+        solution_file = NULL;
+    } else {
+        // pr( "usage %s input_level_file output_solution_file", argv[ 0 ] );
+        // return 1;
+    }
+    char *input = 0;
+    long length;
+    FILE *f = NULL;
+    if ( input_file != NULL ) {
+        f = fopen( input_file, "rb" );
+        if ( f ) {
+            fseek( f, 0, SEEK_END );
+            length = ftell( f );
+            fseek( f, 0, SEEK_SET );
+            input = ( char * )malloc( length );
+            if ( input ) {
+                fread( input, 1, length, f );
+            }
+            fclose( f );
+        }
+        if ( !input ) {
+            pr( "Could not read file:%s", input_file );
+            return 1;
+        }
+    }
 
-    const char *input = "a...cd\n"
-                        "abbbcd\n"
-                        "kkgfed\n"
-                        "llgfe.\n"
-                        "...hii\n"
-                        "...hjj";
+    if ( !input ) {
+        input = ( char * )"a...cd\n"
+                          "abbbcd\n"
+                          "kkgfed\n"
+                          "llgfe.\n"
+                          "...hii\n"
+                          "...hjj";
+    }
 
     Map starting_map;
     map_populate_from_chars( starting_map, input );
@@ -41,9 +72,7 @@ int main( ) {
     pr( "Used num_tips:%d", num_tips );
     if ( solution != NULL ) {
         pr( "Found Solution" );
-        // map_print_which_block( solution->map );
-        pr( "History" );
-        map_hash_table_print_solution( globalTable, solution->map );
+        map_hash_table_print_solution( globalTable, solution->map, solution_file );
     } else {
         pr( "Ran out of tips without finding a solution" );
     }

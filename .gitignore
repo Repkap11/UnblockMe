@@ -1,3 +1,7 @@
 out
 .vscode
 unblock
+__pycache__
+block.txt
+block.png
+commands.txt

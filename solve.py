@@ -43,7 +43,7 @@ def main():
 def swipe_command(from_x, from_y, to_x, to_y, length):
     # print(from_x, from_y, to_x, to_y)
     s = "input touchscreen swipe {} {} {} {} {}".format(
-        int(from_x), int(from_y), int(to_x), int(to_y), int(50 * length))
+        int(from_x), int(from_y), int(to_x), int(to_y), int(80 * length))
     print(s)
     d.shell(s)
 

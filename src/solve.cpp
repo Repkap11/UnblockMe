@@ -136,7 +136,7 @@ void add_successors( Table &table, const Map &map ) {
                     for ( int a = 1; ( !done ) && ( a < max_move + 1 ); a++ ) {
                         // pr( "Trying Move Up:%d", a );
                         Map new_map = map;
-                        MoveCommand move( i, j, c, "up", a );
+                        MoveCommand move( i, j, c, 0, -1, a );
                         for ( int b = 1; ( !done ) && ( b < a + 1 ); b++ ) {
                             if ( new_map.grids[ i - b ][ j ].which_block != ' ' ) {
                                 done = true;
@@ -161,7 +161,7 @@ void add_successors( Table &table, const Map &map ) {
                 for ( int a = 1; ( !done ) && ( a < max_move + 1 ); a++ ) {
                     // pr( "Trying Move Down:%d", a );
                     Map new_map = map;
-                    MoveCommand move( i, j, c, "down", a );
+                    MoveCommand move( i, j, c, 0, 1, a );
                     for ( int b = 0; ( !done ) && ( b < a ); b++ ) {
                         if ( new_map.grids[ i + size + b ][ j ].which_block != ' ' ) {
                             done = true;
@@ -192,7 +192,7 @@ void add_successors( Table &table, const Map &map ) {
                     for ( int a = 1; ( !done ) && ( a < max_move + 1 ); a++ ) {
                         // pr( "Trying Move Left:%d", a );
                         Map new_map = map;
-                        MoveCommand move( i, j, c, "left", a );
+                        MoveCommand move( i, j, c, -1, 0, a );
                         for ( int b = 1; ( !done ) && ( b < a + 1 ); b++ ) {
                             if ( new_map.grids[ i ][ j - b ].which_block != ' ' ) {
                                 done = true;
@@ -217,7 +217,7 @@ void add_successors( Table &table, const Map &map ) {
                 for ( int a = 1; ( !done ) && ( a < max_move + 1 ); a++ ) {
                     // pr( "Trying Move Right:%d", a );
                     Map new_map = map;
-                    MoveCommand move( i, j, c, "right", a );
+                    MoveCommand move( i, j, c, 1, 0, a );
                     for ( int b = 0; ( !done ) && ( b < a ); b++ ) {
                         if ( new_map.grids[ i ][ j + size + b ].which_block != ' ' ) {
                             done = true;

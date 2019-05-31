@@ -31,7 +31,7 @@ DEPS := $(patsubst src/%.cpp,out/%.d, $(wildcard src/*.cpp))
 CC := ccache $(CC)
 LD := ccache $(LD)
 
-solve:
+solve: all
 	python3 solve.py
 
 run: all

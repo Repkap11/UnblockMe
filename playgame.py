@@ -126,7 +126,7 @@ def get_grid_from_file(fn):
         block_number = block_number + 1
 
     cv2.destroyAllWindows()
-    return char_grid
+    return char_grid, grid_left / imgScale, grid_top / imgScale, grid_size / imgScale
 
 def print_grid(char_grid):
     # Print out the character representation of the blocks

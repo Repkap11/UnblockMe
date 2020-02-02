@@ -82,10 +82,11 @@ def get_grid_from_file(fn):
     red_contours, hierarchy = cv2.findContours(red, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     for cnt in red_contours:
         x, y, w, h = cv2.boundingRect(cnt)
-        grid_sizes = np.append(grid_sizes, w, h)
-        grid_lefts = np.append(grid_lefts, x)
-        grid_tops = np.append(grid_tops, y)
-        img1_red = cv2.rectangle(img1_red, (x, y), (x+w, y+h), (0, 255, 0), 2)
+        if (y>10) : # The swipeing debug overlay can be at the top, just don't allow it to be picked
+            grid_sizes = np.append(grid_sizes, w, h)
+            grid_lefts = np.append(grid_lefts, x)
+            grid_tops = np.append(grid_tops, y)
+            img1_red = cv2.rectangle(img1_red, (x, y), (x+w, y+h), (0, 255, 0), 2)
     #cv2.imshow('red',img1_red)
     #cv2.waitKey(0)
 
